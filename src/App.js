@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import ContentEditable from "react-contenteditable";
 
+import { Button, Shortcut } from "../src/Atoms";
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -37,19 +39,16 @@ class App extends React.Component {
     });
   }
   displayShortcuts() {
-    let shortcuts = `
+    let shortcuts = ` 
       Shortcuts<br/>
-      =====<br>
-      <b>Insert (add on top)</b>: control enter<br/>
-      <b>Append (add on bottom)</b>: control '<br/>
-      <b>Expand/collapse</b>: control .<br/>
-      <b>Focus right</b>: tab<br/>
-      <b>Focus left</b>: shift tab
+      - Insert (add on top)........<b>control enter</b><br/>
+      - Append (add on bottom).....<b>control '</b><br/>
+      - Expand/collapse............<b>control \\</b><br/>
+      - Switch columns.............<b>tab, shift tab</b><br/><br/>
+      ** Release the control key between shortcuts!
       ` ;
-    if (window.localStorage.getItem('colOne') === "") {
-      this.setState({ colOne: shortcuts });
-      document.getElementById("colOne").focus()
-    }
+    this.setState({ colOne: this.state.colOne + (this.state.colOne !== "" ? `<br/><br/>` : ``) + shortcuts });
+    document.getElementById("colOne").focus()
   }
 
   setColOne = evt => {
@@ -105,38 +104,36 @@ class App extends React.Component {
   render = () => {
     return (
       <div className={"flex-col h-screen relative"}>
-        <div className={'w-full flex justify-between bg-gray-900 h-8 noprint'}>
-          <div className={'flex'}>
-            <button
-              className={`text-xs px-2 py-1 bg-opacity-75 text-white cursor-pointer focus:outline-none hover:bg-gray-800 hover:text-gray-100 ${this.state.colOne === "" ? `` : `hidden`}`}
+        <div className={'w-full flex bg-gray-900 shadow-inner h-8 absolute bottom-0 sm:static sm:top-0 noprint'}>
+          <div className={'w-1/2 flex justify-start'}>
+            <Button
+              hidden={this.state.colOne === "" ? false : true}
               onClick={() => this.displayShortcuts()}>
-              Shortcuts
-              <span className={'font-mono ml-1 px-1 border border-gray-700 bg-gray-800 text-gray-200 rounded-sm'}>ctrl<span className={'pl-1'}>/</span></span>
-            </button>
-            <button
-              className={`text-xs px-2 py-1 bg-opacity-75 text-white cursor-pointer focus:outline-none hover:bg-gray-800 hover:text-gray-100 ${this.state.colOne === "" ? `hidden` : ``}`}
+              Shortcuts <Shortcut>/</Shortcut>
+            </Button>
+            <Button
+              hidden={this.state.colOne === "" ? true : false}
               onClick={() => this.insertCol()}>
-              Insert
-              <span className={'font-mono ml-1 px-1 border border-gray-700 bg-gray-800 text-gray-200 rounded-sm'}>ctrl<span className={'pl-1'}>&#x21b2;</span></span>
-            </button>
-            <button
-              className={`text-xs px-2 py-1 bg-opacity-75 text-white cursor-pointer focus:outline-none hover:bg-gray-800 hover:text-gray-100 ${this.state.colOne === "" ? `hidden` : ` `}`}
+              Insert <Shortcut>&#x21b2;</Shortcut>
+            </Button>
+            <Button
+              hidden={this.state.colOne === "" ? true : false}
               onClick={() => this.appendCol()}>
-              Append
-              <span className={'font-mono ml-1 px-1 border border-gray-700 bg-gray-800 text-gray-200 rounded-sm'}>ctrl<span className={'pl-1'}>'</span></span>
-            </button>
+              Append <Shortcut>'</Shortcut>
+            </Button>
           </div>
-          <div className={'flex'}>
-            <button
-              className={`text-xs px-2 py-1 bg-opacity-75 text-white cursor-pointer focus:outline-none hover:bg-gray-800 hover:text-gray-100`}
+          <div className={'w-1/3 flex justify-center self-center hidden'}>
+            <div className={'font-black text-teal-300 uppercase italic text-sm'}>Scraps</div>
+          </div>
+          <div className={'w-1/2 flex justify-end'}>
+            <Button
               onClick={() => this.resize()}>
-                {this.state.fullScreen ? <span>Expand</span> : <span>Collapse</span>}
-                <span className={'font-mono ml-1 px-1 border border-gray-700 bg-gray-800 text-gray-200 rounded-sm'}>ctrl<span className={'pl-1'}>\</span></span>
-            </button>
+              {this.state.fullScreen ? 'Expand' : 'Collapse'} <Shortcut>\</Shortcut>
+            </Button>
           </div>
         </div>
         <div className={`grid ${this.state.fullScreen ? `grid-cols-1` : `grid-cols-2`} bg-gray-300 bg-opacity-25 divide-x divide-gray-400`}>
-          <div className={`overflow-y-auto flex-grow-0`}>
+          <div className={`overflow-y-auto flex-grow-0 text-black`}>
             <ContentEditable
               id={"colOne"}
               html={this.state.colOne}
@@ -145,7 +142,7 @@ class App extends React.Component {
               className={"h-screen overflow-y-auto focus:bg-white text-sm font-mono outline-none px-4 py-12 -mt-8"}
             />
           </div>
-          <div className={`overflow-y-auto flex-grow-0 ${this.state.fullScreen && `hidden`}`}>
+          <div className={`overflow-y-auto flex-grow-0 text-black ${this.state.fullScreen && `hidden`}`}>
             <ContentEditable
               id={"colTwo"}
               html={this.state.colTwo}
